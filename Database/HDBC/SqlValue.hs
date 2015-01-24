@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE StandaloneDeriving #-}
 module Database.HDBC.SqlValue
@@ -17,7 +18,11 @@ import Data.Char(ord,toUpper)
 import Data.Word
 import Data.Int
 import qualified System.Time as ST
+#if MIN_VERSION_time(1,5,0)
+import Data.Time hiding (defaultTimeLocale, iso8601DateFormat, parseTime)
+#else
 import Data.Time
+#endif
 import Data.Time.Clock.POSIX
 import Database.HDBC.Locale (defaultTimeLocale, iso8601DateFormat)
 import Data.Ratio
@@ -60,6 +65,12 @@ iToSql = toSql
 'toSql' cannot do the correct thing in this instance. -}
 posixToSql :: POSIXTime -> SqlValue
 posixToSql x = SqlPOSIXTime x
+
+#if MIN_VERSION_time(1,5,0)
+{- | Convenience function instead of deprecated parseTime. -}
+parseTime :: (ParseTime t, Monad m) => TimeLocale -> String -> String -> m t
+parseTime = parseTimeM True
+#endif
 
 {- | 'SqlValue' is the main type for expressing Haskell values to SQL databases.
 

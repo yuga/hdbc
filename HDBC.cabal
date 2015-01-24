@@ -24,13 +24,21 @@ source-repository head
 
 flag splitBase
   description: Choose the new smaller, split-up base package.
+
 flag buildtests
   description: Build the executable to run unit tests
   default: False
 
+flag old-locale
+  description: Whether depends on time < 1.5 together with old-locale, or time >= 1.5 .
+  default: True
+
 library
   if flag(splitBase)
-    Build-Depends: base>=3 && <5, old-time, time>=1.1.3 && <=1.5, bytestring, containers, old-locale
+    if flag(old-locale)
+      Build-Depends: base>=3 && <5, old-time, time>=1.1.3 && <1.5, bytestring, containers, old-locale
+    else
+      Build-Depends: base>=3 && <5, old-time, time>=1.5, bytestring, containers
   else
     Build-Depends: base<3
   Build-Depends: mtl, convertible >= 1.1.0.0, text, utf8-string
@@ -56,7 +64,10 @@ Executable runtests
       Build-Depends: HUnit, QuickCheck (>= 2.0), testpack (>= 2.0)
 
       if flag(splitBase)
-        Build-Depends: base>=3 && <5, old-time, time>=1.1.3 && <=1.5, bytestring, containers, old-locale
+        if flag(old-locale)
+          Build-Depends: base>=3 && <5, old-time, time>=1.1.3 && <1.5, bytestring, containers, old-locale
+        else
+          Build-Depends: base>=3 && <5, old-time, time>=1.5, bytestring, containers
       else
         Build-Depends: base<3
       Build-Depends: mtl, convertible >= 1.1.0.0, utf8-string, text
